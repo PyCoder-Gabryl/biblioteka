@@ -274,3 +274,7 @@ cython_debug/
 
 # Junie
 .junie/
+/.venv_config
+/logs/app.log.json
+/logs/backup/app_20260427_011248.json
+/logs/backup/app_20260427_011301.json
