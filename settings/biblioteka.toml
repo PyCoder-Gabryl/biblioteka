@@ -1,0 +1,38 @@
+# Konfiguracja aplikacji Biblioteka
+
+[app]
+name = "bibliotka"
+version = "0.0.1"
+
+[logging]
+# Poziom: DEBUG, INFO, WARNING, ERROR, CRITICAL
+level = "INFO"
+
+[logging.file]
+# Ścieżka względna od korzenia projektu
+path = "logs/app.log.json"
+backup_dir = "logs/backup"
+
+[logging.rotation]
+# Maksymalna liczba plików w backup
+max_backup_files = 100
+# Maksymalny wiek pliku w dniach
+max_backup_days = 14
+
+[database]
+# Ścieżka do bazy DuckDB (względna lub absolutna)
+path = "data/bibliotka.db"
+
+[api.bn]
+# BN Data - Biblioteka Narodowa
+base_url = "https://data.bn.org.pl/api"
+
+[api.fbc]
+# Federacja Bibliotek Cyfrowych
+base_url = "https://fbc.pionier.net.pl"
+
+[ui]
+# Parametry GUI
+window_width = 1200
+window_height = 800
+dark_mode = false
