@@ -5,7 +5,7 @@
 #   PROJEKT:            biblioteka
 #   MODUŁ:              src/biblioteka/logging/logger.py
 #
-#   WERSJA:             0.5 [04-27]
+#   WERSJA:             0.6 [04-27]
 #   Data utworzenia:    2026 kwiecień 27, 00:00
 #
 #   COPYRIGHT:          2026 PyGamiQ <pygamiq@gmail.com>
@@ -24,16 +24,16 @@ import json
 import logging
 import shutil
 import sys
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 import structlog
 from structlog import PrintLoggerFactory
 from structlog.dev import ConsoleRenderer
 from structlog.processors import StackInfoRenderer, TimeStamper, format_exc_info
 from structlog.types import Processor
-
-from dataclasses import dataclass
 
 from biblioteka.config.settings import get_project_root, load_settings
 
@@ -71,31 +71,35 @@ class RotatingLogHandler:
 				f.unlink()
 
 
-_log_file: Path | None = None
+class _LogFileManager:
+	"""Zarzadca plikiem logow."""
+
+	_log_file: Path | None = None
+
+	@classmethod
+	def set_log_file(cls, path: Path) -> None:
+		cls._log_file = path
+
+	@classmethod
+	def get_log_file(cls) -> Path | None:
+		return cls._log_file
 
 
-def _write_json(processor: Processor, method: str, event_dict: dict) -> dict:
-	"""Zapisuje log do pliku JSON.
-
-	Args:
-		processor: Procesor structlog.
-		method: Metoda logowania (info, error, etc).
-		event_dict: Słownik z danymi logowania.
-
-	Returns:
-		Niezmodyfikowany event_dict.
-	"""
-	global _log_file
-	if _log_file:
-		with open(_log_file, 'a', encoding='utf-8') as f:
+def _write_json(
+	_processor: Processor,
+	_method_name: str,
+	event_dict: dict[str, Any],
+) -> dict[str, Any]:
+	"""Zapisuje log do pliku JSON."""
+	log_file = _LogFileManager.get_log_file()
+	if log_file:
+		with open(log_file, 'a', encoding='utf-8') as f:
 			f.write(json.dumps(event_dict) + '\n')
 	return event_dict
 
 
 def configure_logging() -> None:
 	"""Konfiguruje structlog z rotacją plików."""
-	global _log_file
-
 	project_root = get_project_root()
 	settings = load_settings()
 
@@ -113,13 +117,11 @@ def configure_logging() -> None:
 	)
 	handler.rotate()
 
-	_log_file = log_path
+	_LogFileManager.set_log_file(log_path)
 
 	log_level = getattr(logging, settings.logging.level, logging.INFO)
 
-	console_renderer = ConsoleRenderer(
-		colors=True,
-	)
+	console_renderer = ConsoleRenderer(colors=True)
 
 	processors = [
 		structlog.contextvars.merge_contextvars,
