@@ -8,6 +8,7 @@ from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
 	QLabel,
 	QMainWindow,
+	QSizePolicy,
 	QTabWidget,
 	QTextEdit,
 	QVBoxLayout,
@@ -146,9 +147,12 @@ class MainWindow(QMainWindow):
 		log.debug('zmiana-zakladki', tab=tab_name)
 
 		if tab_name == 'Logi':
-			self._log_panel.setFixedHeight(750)
+			self._log_panel.setMinimumHeight(700)
+			self._log_panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 		else:
 			self._log_panel.setFixedHeight(80)
+			self._log_panel.setMinimumHeight(80)
+			self._log_panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
 		self._load_logs()
 		if self._log_panel:
