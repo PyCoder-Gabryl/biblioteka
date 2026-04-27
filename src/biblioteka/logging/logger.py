@@ -24,8 +24,10 @@ import json
 import logging
 import shutil
 import sys
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from typing import Any, cast
 from pathlib import Path
 from typing import Any
 
@@ -124,7 +126,7 @@ def configure_logging() -> None:
 
 	console_renderer = ConsoleRenderer(colors=True)
 
-	processors = [
+	processors: list[Processor] = [
 		structlog.contextvars.merge_contextvars,
 		structlog.processors.add_log_level,
 		TimeStamper(fmt='iso', utc=True),
@@ -135,7 +137,7 @@ def configure_logging() -> None:
 	]
 
 	structlog.configure(
-		processors=processors,
+		processors=cast(Iterable[Processor], processors),
 		wrapper_class=structlog.make_filtering_bound_logger(log_level),
 		context_class=dict,
 		logger_factory=PrintLoggerFactory(file=sys.stderr),
