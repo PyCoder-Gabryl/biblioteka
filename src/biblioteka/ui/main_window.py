@@ -5,7 +5,7 @@
 #   PROJEKT:            biblioteka
 #   MODUŁ:              src/biblioteka/ui/main_window.py
 #
-#   WERSJA:             0.2 [04-27]
+#   WERSJA:             0.3 [04-27]
 #   Data utworzenia:    2026 kwiecień 27, 03:00
 #
 #   COPYRIGHT:          2026 PyGamiQ <pygamiq@gmail.com>
@@ -17,21 +17,18 @@
 # ==========================================================================================
 #   OPIS:
 #       Główne okno aplikacji z zakładkami.
-#       - QTabWidget z zakładkami na górze (jak w Word)
-#       - Zakładki: Dodaj, Szukaj, Przeglądaj, Statystyki, Logi, Ustawienia
-#       - Panel logów na dole (czarny, białe logi)
 # ==========================================================================================
 
+import json
 from datetime import datetime
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QFont, QTextCharFormat, QTextCursor
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QFont, QTextCursor
 from PySide6.QtWidgets import (
-	QApplication,
-	QFrame,
 	QLabel,
 	QMainWindow,
+	QSplitter,
 	QTabWidget,
 	QTextEdit,
 	QVBoxLayout,
@@ -45,7 +42,7 @@ from biblioteka.logging import get_logger
 log = get_logger(__name__)
 
 
-TAB_NAMES = ['Dodaj', 'Szukaj', 'Przeglądaj', 'Statystyki', 'Logi', 'Ustawienia']
+TAB_NAMES = ['Dodaj', 'Szukaj', 'Przeglądaj', 'Statystyki', 'Logi', 'Ustawienia', 'O aplikacji']
 
 TAB_COLORS = [
 	'#E74C3C',  # Dodaj - czerwony
@@ -54,6 +51,7 @@ TAB_COLORS = [
 	'#9B59B6',  # Statystyki - fioletowy
 	'#F39C12',  # Logi - pomarańczowy
 	'#1ABC9C',  # Ustawienia - turkusowy
+	'#E0E0E0',  # O aplikacji - szary
 ]
 
 
@@ -64,13 +62,14 @@ class MainWindow(QMainWindow):
 		"""Inicjalizacja głównego okna."""
 		super().__init__()
 
-		settings = load_settings()
-		self._settings = settings
-
-		self.setWindowTitle(self._build_title())
-		self.setMinimumSize(settings.ui.window_width, settings.ui.window_height)
+		self._settings = load_settings()
+		self._theme = self._settings.theme
+		self._fonts = self._settings.fonts
 
 		self._log_panel: QTextEdit = None  # type: ignore[assignment]
+
+		self.setWindowTitle(self._build_title())
+		self.setMinimumSize(self._settings.ui.window_width, self._settings.ui.window_height)
 
 		self._setup_ui()
 		self._center_on_screen()
@@ -80,10 +79,19 @@ class MainWindow(QMainWindow):
 	def _build_title(self) -> str:
 		"""Buduje tytuł okna."""
 		created = datetime.now().strftime('%Y-%m-%d')
-		return f'bibliotka :: {__about__.__version__} : {created}'
+		return f'{__about__.__app_name__} :: {__about__.__version__} : {created}'
 
 	def _setup_ui(self) -> None:
 		"""Tworzy interfejs użytkownika."""
+		self.setStyleSheet(f'''
+			QMainWindow {{
+				background-color: {self._theme.bg_dark};
+			}}
+			QWidget {{
+				color: {self._theme.text_primary};
+			}}
+		''')
+
 		central = QWidget()
 		layout = QVBoxLayout(central)
 		layout.setContentsMargins(0, 0, 0, 0)
@@ -93,67 +101,111 @@ class MainWindow(QMainWindow):
 		self._tabs.setTabPosition(QTabWidget.TabPosition.North)
 		self._tabs.currentChanged.connect(self._on_tab_changed)
 
+		self._log_panel = self._create_log_panel()
+
 		for i, name in enumerate(TAB_NAMES):
 			self._tabs.addTab(self._create_tab(name), name)
 
-		layout.addWidget(self._tabs)
-		layout.addWidget(self._create_log_panel())
-
 		self._style_tabs()
+		self._load_logs()
+
+		splitter = QSplitter(Qt.Orientation.Vertical)
+		splitter.addWidget(self._tabs)
+		splitter.addWidget(self._log_panel)
+		splitter.setSizes([self.height() * 75, self.height() * 25])
+		splitter.setHandleWidth(2)
+		self._load_logs()
+
+		layout.addWidget(splitter)
 		self.setCentralWidget(central)
 
 	def _create_tab(self, name: str) -> QWidget:
-		"""Tworzy pustą zakładkę placeholder."""
+		"""Tworzy zakładkę."""
 		tab = QWidget()
-		label = QLabel(f'Zakładka: {name}')
-		label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-		layout = QVBoxLayout(tab)
-		layout.addWidget(label)
+		if name == 'O aplikacji':
+			self._create_about_tab(tab)
+		else:
+			label = QLabel(f'Zakładka: {name}')
+			label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+			layout = QVBoxLayout(tab)
+			layout.addWidget(label)
 		return tab
+
+	def _create_about_tab(self, tab: QWidget) -> None:
+		"""Tworzy zakładkę O aplikacji."""
+		layout = QVBoxLayout(tab)
+		layout.setSpacing(20)
+
+		title = QLabel(__about__.__app_name__.upper())
+		title.setFont(QFont(self._fonts.tab_family, 32, QFont.Weight.Bold))
+		title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+		layout.addWidget(title)
+
+		info = QLabel(
+			f'Wersja: {__about__.__version__}<br>'
+			f'Utworzono: {__about__.__created__}<br>'
+			f'Autor: {__about__.__author__}'
+		)
+		info.setAlignment(Qt.AlignmentFlag.AlignCenter)
+		layout.addWidget(info)
+
+		link = QLabel(f'<a href="{__about__.__github__}">{__about__.__github__}</a>')
+		link.setAlignment(Qt.AlignmentFlag.AlignCenter)
+		link.setOpenExternalLinks(True)
+		layout.addWidget(link)
+
+		layout.addStretch()
 
 	def _style_tabs(self) -> None:
 		"""Stylizuje zakładki."""
-		font = QFont('JetBrains Mono')
-		font.setPointSize(font.pointSize() * 2)
+		font = QFont(self._fonts.tab_family)
+		font.setPointSize(self._fonts.tab_size)
+		font.setItalic(True)
 
-		for i in range(self._tabs.count()):
-			tab = self._tabs.tabBar()
-			tab.setFont(font)
-			tab.setExpanding(True)
-			tab.setDocumentMode(True)
+		tab_bar = self._tabs.tabBar()
+		tab_bar.setFont(font)
+		tab_bar.setExpanding(True)
+		tab_bar.setDocumentMode(True)
 
-			self._tabs.tabBar().setTabTextColor(i, TAB_COLORS[i])
-
-		self._tabs.tabBar().setStyleSheet('''
-			QTabBar::tab {
-				min-width: 100px;
-				padding: 10px 20px;
-			}
+		tab_bar.setStyleSheet(f'''
+			QTabBar::tab {{
+				background-color: {self._theme.tabs_bg};
+				color: {self._theme.tabs_text};
+				padding: 8px 24px;
+				min-width: 120px;
+			}}
+			QTabBar::tab:selected {{
+				background-color: {self._theme.tabs_active};
+			}}
+			QTabBar::tab:hover:!selected {{
+				background-color: {self._theme.tabs_hover};
+			}}
 		''')
+
+		for i, color in enumerate(TAB_COLORS):
+			self._tabs.tabBar().setTabTextColor(i, color)
 
 	def _create_log_panel(self) -> QTextEdit:
-		"""Tworzy panel logów na dole."""
-		settings = self._settings.panel
-		max_height = int(self._settings.ui.window_height * settings.max_height_ratio)
-
+		"""Tworzy panel logów."""
 		panel = QTextEdit()
-		panel.setMaximumHeight(max_height)
 		panel.setReadOnly(True)
+		panel.setMaximumHeight(self._settings.ui.window_height // 4)
 
-		panel.setStyleSheet('''
-			QTextEdit {
-				background-color: #000000;
-				color: #FFFFFF;
+		panel.setStyleSheet(f'''
+			QTextEdit {{
+				background-color: {self._settings.panel.bg_color};
+				color: {self._settings.panel.text_color};
 				border: none;
 				padding: 10px;
-				font-family: 'JetBrains Mono';
+				font-family: '{self._fonts.tab_family}';
 				font-size: 12px;
-			}
+			}}
 		''')
 
+		self._load_logs()
 		return panel
 
-	def _read_logs(self) -> None:
+	def _load_logs(self) -> None:
 		"""Wczytuje logi do panelu."""
 		if not self._log_panel:
 			return
@@ -161,38 +213,28 @@ class MainWindow(QMainWindow):
 		project_root = get_project_root()
 		log_file = project_root / self._settings.logging.file.path
 
-		if not log_file.exists():
-			return
+		if log_file.exists():
+			content = log_file.read_text(encoding='utf-8')
+			lines = content.strip().split('\n')
+			recent = lines[-50:] if len(lines) > 50 else lines
 
-		content = log_file.read_text(encoding='utf-8')
-		lines = content.strip().split('\n')
-		recent = lines[-20:] if len(lines) > 20 else lines
-
-		for line in recent:
-			if line:
-				try:
-					import json
-					entry = json.loads(line)
-					msg = entry.get('event', '')
-					if msg:
-						self._log_panel.moveCursor(QTextCursor.MoveOperation.End)
-						self._log_panel.insertPlainText(f'{msg}\n')
-				except Exception:
-					pass
-
-	def _append_log(self, message: str) -> None:
-		"""Dodaje log do panelu."""
-		if not self._log_panel or not message:
-			return
-		self._log_panel.moveCursor(QTextCursor.MoveOperation.End)
-		self._log_panel.insertPlainText(f'{message}\n')
-		self._log_panel.moveCursor(QTextCursor.MoveOperation.End)
+			self._log_panel.clear()
+			for line in reversed(recent):
+				if line:
+					try:
+						entry = json.loads(line)
+						msg = entry.get('event', '')
+						if msg:
+							self._log_panel.append(msg)
+					except Exception:
+						pass
 
 	def _on_tab_changed(self, index: int) -> None:
 		"""Obsługuje przełączenie zakładki."""
 		tab_name = self._tabs.tabText(index)
 		log.debug('zmiana-zakladki', tab=tab_name)
-		self._append_log(f'→ {tab_name}')
+		self._load_logs()
+		self._log_panel.append(f'→ {tab_name}')
 
 	def _center_on_screen(self) -> None:
 		"""Centruje okno na ekranie."""

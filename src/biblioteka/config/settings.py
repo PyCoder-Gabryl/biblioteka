@@ -79,15 +79,44 @@ class UiConfig(BaseModel):
 
 	window_width: int = 1200
 	window_height: int = 800
-	dark_mode: bool = False
+
+
+class UiThemeConfig(BaseModel):
+	"""Konfiguracja kolorów UI (ciemno-pastelowe)."""
+
+	bg_dark: str = "#1E1E2E"
+	bg_medium: str = "#2D2D44"
+	bg_light: str = "#3D3D5C"
+	text_primary: str = "#E4E4F0"
+	text_secondary: str = "#A0A0B8"
+
+	tabs_bg: str = "#252538"
+	tabs_active: str = "#4A4A6A"
+	tabs_text: str = "#D0D0E8"
+	tabs_hover: str = "#3A3A58"
+
+	tab_dodaj: str = "#E74C3C"
+	tab_szukaj: str = "#3498DB"
+	tab_przegladaj: str = "#2ECC71"
+	tab_statystyki: str = "#9B59B6"
+	tab_logi: str = "#F39C12"
+	tab_ustawienia: str = "#1ABC9C"
 
 
 class PanelConfig(BaseModel):
 	"""Konfiguracja panelu logów."""
 
-	max_height_ratio: float = 0.2
-	bg_color: str = '#000000'
-	text_color: str = '#FFFFFF'
+	max_height_ratio: float = 0.25
+	bg_color: str = "#0D0D14"
+	text_color: str = "#E4E4F0"
+
+
+class FontsConfig(BaseModel):
+	"""Konfiguracja czcionek."""
+
+	tab_family: str = "JetBrains Mono"
+	tab_weight: int = 750
+	tab_size: int = 18
 
 
 class AssetsConfig(BaseModel):
@@ -119,7 +148,9 @@ class Settings(BaseSettings):
 	database: DatabaseConfig = Field(default_factory=DatabaseConfig)
 	api: ApiConfig = Field(default_factory=ApiConfig)
 	ui: UiConfig = Field(default_factory=UiConfig)
+	theme: UiThemeConfig = Field(default_factory=UiThemeConfig)
 	panel: PanelConfig = Field(default_factory=PanelConfig)
+	fonts: FontsConfig = Field(default_factory=FontsConfig)
 	assets: AssetsConfig = Field(default_factory=AssetsConfig)
 
 
