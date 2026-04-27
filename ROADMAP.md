@@ -2,15 +2,15 @@
 
 ## 🏗️ Faza 1: Fundamenty i Środowisko
 
-- [ ] Konfiguracja projektu `hatch` (Python 3.14.4)
-- [ ] Konfiguracja `structlog` (zapis do `logs/app.log.json`)
+- [x] Konfiguracja projektu `hatch` (Python 3.14.4)
+- [x] Konfiguracja `structlog` (zapis do `logs/app.log.json`)
 - [ ] Inicjalizacja bazy **DuckDB** (`src/core/database.py`)
     - [ ] Tworzenie tabel (books, authors, editions)
     - [ ] Logika unikalnych kluczy (ISBN / Hash metadanych)
 - [ ] Integracja z **API Biblioteki Narodowej**:
     - [ ] **BN Data** (data.bn.org.pl) - bez autoryzacji
-        - `/api/institutions/bibs.json` - rekordy BN
-        - `/api/networks/bibs.json` - połączone katalogi
+        - [ ] `/api/institutions/bibs.json` - rekordy BN
+        - [ ] `/api/networks/bibs.json` - połączone katalogi
     - [ ] **PBN** (pbn.nauka.gov.pl) - publikacje naukowe (wymaga tokenu)
     - [ ] Wyszukiwanie po ISBN, autorze, tytule
 
