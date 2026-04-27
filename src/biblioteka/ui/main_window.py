@@ -78,9 +78,6 @@ class MainWindow(QMainWindow):
 		self.setCentralWidget(central)
 
 	def _create_about_in_layout(self, layout: QVBoxLayout) -> None:
-		layout.setContentsMargins(50, 50, 50, 50)
-		layout.setSpacing(30)
-
 		title = QLabel(__about__.__app_name__.upper())
 		title.setFont(QFont(self._fonts.tab_family, 36, QFont.Weight.Bold))
 		title.setAlignment(Qt.AlignmentFlag.AlignHCenter)
@@ -96,7 +93,6 @@ class MainWindow(QMainWindow):
 		link.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 		link.setOpenExternalLinks(True)
 		layout.addWidget(link)
-		layout.addStretch()
 
 	def _create_log_panel_for_tab(self, tab_name: str) -> QTextEdit:
 		panel = QTextEdit()
