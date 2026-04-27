@@ -83,9 +83,11 @@ class MainWindow(QMainWindow):
 
 		if tab_name == 'Logi':
 			panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+			panel.setMaximumHeight(16777215)  # maksymalna wysokość = brak limitu
 		else:
 			panel.setFixedHeight(80)
 			panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+			panel.setMaximumHeight(80)
 
 		panel.setStyleSheet(f'QTextEdit {{ background-color: {self._settings.panel.bg_color}; color: {self._settings.panel.text_color}; border: none; padding: 10px; font-family: {self._fonts.tab_family}; font-size: 12px; }}')
 		return panel
