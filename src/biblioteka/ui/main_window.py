@@ -134,11 +134,12 @@ class MainWindow(QMainWindow):
 	def _create_about_tab(self, tab: QWidget) -> None:
 		"""Tworzy zakładkę O aplikacji."""
 		layout = QVBoxLayout(tab)
-		layout.setSpacing(20)
+		layout.setContentsMargins(50, 50, 50, 50)
+		layout.setSpacing(30)
 
 		title = QLabel(__about__.__app_name__.upper())
-		title.setFont(QFont(self._fonts.tab_family, 32, QFont.Weight.Bold))
-		title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+		title.setFont(QFont(self._fonts.tab_family, 36, QFont.Weight.Bold))
+		title.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 		layout.addWidget(title)
 
 		info = QLabel(
@@ -146,11 +147,13 @@ class MainWindow(QMainWindow):
 			f'Utworzono: {__about__.__created__}<br>'
 			f'Autor: {__about__.__author__}'
 		)
-		info.setAlignment(Qt.AlignmentFlag.AlignCenter)
+		info.setFont(QFont(self._fonts.tab_family, 16))
+		info.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 		layout.addWidget(info)
 
 		link = QLabel(f'<a href="{__about__.__github__}">{__about__.__github__}</a>')
-		link.setAlignment(Qt.AlignmentFlag.AlignCenter)
+		link.setFont(QFont(self._fonts.tab_family, 14))
+		link.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 		link.setOpenExternalLinks(True)
 		layout.addWidget(link)
 
@@ -234,7 +237,8 @@ class MainWindow(QMainWindow):
 		tab_name = self._tabs.tabText(index)
 		log.debug('zmiana-zakladki', tab=tab_name)
 		self._load_logs()
-		self._log_panel.append(f'→ {tab_name}')
+		if self._log_panel:
+			self._log_panel.append(f'przełączono na {tab_name}')
 
 	def _center_on_screen(self) -> None:
 		"""Centruje okno na ekranie."""

@@ -1,7 +1,7 @@
 # Konfiguracja aplikacji Biblioteka
 
 [app]
-name = "bibliotka"
+name = "Biblioteka"
 version = "0.0.1"
 
 [logging]
@@ -56,11 +56,11 @@ tab_logi = "#F39C12"
 tab_ustawienia = "#1ABC9C"
 
 [ui.panel]
-max_height_ratio = 0.25
+max_height_ratio = 0.125
 bg_color = "#0D0D14"
 text_color = "#E4E4F0"
 
 [ui.fonts]
 tab_family = "JetBrains Mono"
 tab_weight = 750
-tab_size = 18
+tab_size = 24
