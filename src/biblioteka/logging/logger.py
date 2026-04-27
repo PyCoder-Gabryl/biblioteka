@@ -33,25 +33,19 @@ from structlog.dev import ConsoleRenderer
 from structlog.processors import StackInfoRenderer, TimeStamper, format_exc_info
 from structlog.types import Processor
 
+from dataclasses import dataclass
+
 from biblioteka.config.settings import get_project_root, load_settings
 
 
+@dataclass(slots=True)
 class RotatingLogHandler:
 	"""Handler rotujący pliki logów."""
 
-	def __init__(self, log_file: Path, backup_dir: Path, max_files: int = 100, max_days: int = 14) -> None:
-		"""Inicjalizacja handlera.
-
-		Args:
-			log_file: Ścieżka do pliku logów.
-			backup_dir: Katalog na kopie zapasowe.
-			Maksymalna liczba plików w backup.
-			Maksymalny wiek pliku w dniach.
-		"""
-		self.log_file = log_file
-		self.backup_dir = backup_dir
-		self.max_files = max_files
-		self.max_days = max_days
+	log_file: Path
+	backup_dir: Path
+	max_files: int = 100
+	max_days: int = 14
 
 	def rotate(self) -> None:
 		"""Rotuje plik logów do katalogu backup."""
