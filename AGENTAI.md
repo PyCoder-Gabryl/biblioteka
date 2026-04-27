@@ -23,8 +23,9 @@
 - **Python:** 3.14
 - **GUI:** PySide6
 - **Baza:** DuckDB
-- **Struktura:** `src/bibliotka/`
-- **Wersja:** `src/bibliotka/__about__.py`
+- **Struktura:** `src/biblioteka/`
+- **Wersja:** `src/biblioteka/__about__.py`
+- **WAŻNE:** Sekcja `dependencies` w `pyproject.toml` musi być **OSTATNIĄ** sekcją przed `[project.urls]`
 
 ---
 

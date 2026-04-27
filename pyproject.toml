@@ -17,6 +17,25 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3.14",
 ]
+
+[project.urls]
+Documentation = "https://github.com/PyGamiQ/biblioteka#readme"
+Issues = "https://github.com/PyGamiQ/biblioteka/issues"
+Source = "https://github.com/PyGamiQ/biblioteka"
+
+[tool.hatch.version]
+path = "src/biblioteka/__about__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/biblioteka"]
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+    "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/bibliotka tests}"
+
 dependencies = [
     "duckdb>=1.0.0",
     "structlog>=24.0.0",
@@ -32,21 +51,3 @@ dependencies = [
     "tomli>=2.4.1",
     "pydantic-settings>=2.14.0",
 ]
-
-[project.urls]
-Documentation = "https://github.com/PyGamiQ/bibliotka#readme"
-Issues = "https://github.com/PyGamiQ/bibliotka/issues"
-Source = "https://github.com/PyGamiQ/bibliotka"
-
-[tool.hatch.version]
-path = "src/bibliotka/__about__.py"
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/bibliotka"]
-
-[tool.hatch.envs.types]
-extra-dependencies = [
-    "mypy>=1.0.0",
-]
-[tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/bibliotka tests}"
