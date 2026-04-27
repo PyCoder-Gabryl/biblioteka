@@ -5,7 +5,7 @@
 #   PROJEKT:            biblioteka
 #   MODUŁ:              biblioteka/src/biblioteka/main.py
 #
-#   WERSJA:             0.3 [04-27]
+#   WERSJA:             0.4 [04-27]
 #   Data utworzenia:    2026 kwiecień 26, 06:56
 #
 #   COPYRIGHT:          2026 PyGamiQ <pygamiq@gmail.com>
@@ -19,11 +19,15 @@
 #       Główny moduł aplikacji biblioteki.
 # ==========================================================================================
 
+import sys
 from datetime import datetime
 from pathlib import Path
 
+from PySide6.QtWidgets import QApplication
+
 from biblioteka import __about__
 from biblioteka.logging.logger import get_logger
+from biblioteka.ui.main_window import MainWindow
 
 log = get_logger(__name__)
 
@@ -68,8 +72,16 @@ def main() -> None:
 		started_at=datetime.now().isoformat(),
 	)
 
+	app = QApplication(sys.argv)
+	app.setApplicationName('bibliotka')
+
+	window = MainWindow()
+	window.show()
+
 	try:
-		pass  # TODO: główna logika aplikacji
+		sys.exit(app.exec())
+	except SystemExit:
+		pass  # noqa: PLR1722
 	except Exception as e:
 		log.error('blad-aplikacji', exc=str(e))
 		raise
