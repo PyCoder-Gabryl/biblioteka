@@ -44,40 +44,41 @@ class MainWindow(QMainWindow):
 	def _setup_ui(self) -> None:
 		self.setStyleSheet(f'QMainWindow {{ background-color: {self._theme.bg_dark}; }} QWidget {{ color: {self._theme.text_primary}; }}')
 
-		self._log_panel = self._create_log_panel()
-
 		self._tabs = QTabWidget()
 		self._tabs.setTabPosition(QTabWidget.TabPosition.North)
 		self._tabs.currentChanged.connect(self._on_tab_changed)
 
+		self._log_panel = self._create_log_panel()
+
 		for name in TAB_NAMES:
-			tab = QWidget()
-			layout = QVBoxLayout(tab)
-			layout.setContentsMargins(0, 0, 0, 0)
-			if name == 'O aplikacji':
-				self._create_about_in_layout(layout)
-			else:
-				label = QLabel(f'Zakładka: {name}')
-				label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-				layout.addWidget(label)
-				if name == 'Logi':
-					layout.addWidget(self._log_panel, 1)
-				else:
-					layout.addWidget(self._log_panel, 0, Qt.AlignmentFlag.AlignBottom)
-			self._tabs.addTab(tab, name)
+			self._tabs.addTab(self._create_tab(name), name)
 
 		self._style_tabs()
+		self._load_logs()
 
 		layout = QVBoxLayout()
 		layout.setContentsMargins(0, 0, 0, 0)
 		layout.setSpacing(0)
 		layout.addWidget(self._tabs, 1)
+		layout.addWidget(self._log_panel, 0)
 
 		central = QWidget()
 		central.setLayout(layout)
 		self.setCentralWidget(central)
 
-	def _create_about_in_layout(self, layout: QVBoxLayout) -> None:
+	def _create_tab(self, name: str) -> QWidget:
+		tab = QWidget()
+		if name == 'O aplikacji':
+			self._create_about_tab(tab)
+		else:
+			label = QLabel(f'Zakładka: {name}')
+			label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+			layout = QVBoxLayout(tab)
+			layout.addWidget(label)
+		return tab
+
+	def _create_about_tab(self, tab: QWidget) -> None:
+		layout = QVBoxLayout(tab)
 		layout.setContentsMargins(50, 50, 50, 50)
 		layout.setSpacing(30)
 
@@ -98,13 +99,6 @@ class MainWindow(QMainWindow):
 		layout.addWidget(link)
 		layout.addStretch()
 
-	def _create_log_panel(self) -> QTextEdit:
-		panel = QTextEdit()
-		panel.setReadOnly(True)
-		panel.setFixedHeight(80)
-		panel.setStyleSheet(f'QTextEdit {{ background-color: {self._settings.panel.bg_color}; color: {self._settings.panel.text_color}; border: none; padding: 10px; font-family: {self._fonts.tab_family}; font-size: 12px; }}')
-		return panel
-
 	def _style_tabs(self) -> None:
 		font = QFont(self._fonts.tab_family)
 		font.setPointSize(self._fonts.tab_size)
@@ -118,12 +112,12 @@ class MainWindow(QMainWindow):
 		for i, color in enumerate(TAB_COLORS):
 			self._tabs.tabBar().setTabTextColor(i, color)
 
-	def _on_tab_changed(self, index: int) -> None:
-		tab_name = self._tabs.tabText(index)
-		log.debug('zmiana-zakladki', tab=tab_name)
-		self._load_logs()
-		if self._log_panel:
-			self._log_panel.append(f'przełączono na {tab_name}')
+	def _create_log_panel(self) -> QTextEdit:
+		panel = QTextEdit()
+		panel.setReadOnly(True)
+		panel.setFixedHeight(80)
+		panel.setStyleSheet(f'QTextEdit {{ background-color: {self._settings.panel.bg_color}; color: {self._settings.panel.text_color}; border: none; padding: 10px; font-family: {self._fonts.tab_family}; font-size: 12px; }}')
+		return panel
 
 	def _load_logs(self) -> None:
 		if not self._log_panel:
@@ -146,6 +140,19 @@ class MainWindow(QMainWindow):
 							self._log_panel.append(msg)
 					except Exception:
 						pass
+
+	def _on_tab_changed(self, index: int) -> None:
+		tab_name = self._tabs.tabText(index)
+		log.debug('zmiana-zakladki', tab=tab_name)
+
+		if tab_name == 'Logi':
+			self._log_panel.setFixedHeight(750)
+		else:
+			self._log_panel.setFixedHeight(80)
+
+		self._load_logs()
+		if self._log_panel:
+			self._log_panel.append(f'przełączono na {tab_name}')
 
 	def _center_on_screen(self) -> None:
 		screen = self.screen()
