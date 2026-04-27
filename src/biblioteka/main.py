@@ -39,8 +39,26 @@ def _check_previous_session() -> None:
 		log.warning('poprzednia-sesja-przerwana', reason='brak logu zakończenia')
 
 
+def _setup_global_exception_handler() -> None:
+	"""Ustawia globalny handler wyjątków."""
+
+	def handle_exception(exc_type: type, exc_value: BaseException, exc_tb: object) -> None:
+		if issubclass(exc_type, KeyboardInterrupt):
+			log.warning('przerwane-przez-uzytkownika')
+			return
+		log.critical(
+			'nieobsluzony-wyjątek',
+			exc_type=exc_type.__name__,
+			exc_value=str(exc_value),
+		)
+
+	import sys
+	sys.excepthook = handle_exception
+
+
 def main() -> None:
 	"""Uruchamia aplikację biblioteki."""
+	_setup_global_exception_handler()
 	_check_previous_session()
 
 	log.info(
@@ -52,6 +70,9 @@ def main() -> None:
 
 	try:
 		pass  # TODO: główna logika aplikacji
+	except Exception as e:
+		log.error('blad-aplikacji', exc=str(e))
+		raise
 	finally:
 		log.info(
 			'end aplikacji',
