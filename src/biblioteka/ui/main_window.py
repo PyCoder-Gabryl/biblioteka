@@ -1,23 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# ==========================================================================================
-#   PROJEKT:            biblioteka
-#   MODUŁ:              src/biblioteka/ui/main_window.py
-#   WERSJA:             0.3 [04-27]
-#   COPYRIGHT:          2026 PyGamiQ <pygamiq@gmail.com>
-#   AUTOR:              PyGamiQ
-#   GITHUB:             https://github.com/PyGamiQ/biblioteka
-# ==========================================================================================
-#   OPIS:
-#       Główne okno aplikacji z zakładkami.
-# ==========================================================================================
-
-import json
 from datetime import datetime
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont, QTextCursor
+from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
 	QLabel,
 	QMainWindow,
@@ -34,12 +21,8 @@ from biblioteka.logging import get_logger
 
 log = get_logger(__name__)
 
-
 TAB_NAMES = ['Dodaj', 'Szukaj', 'Przeglądaj', 'Statystyki', 'Logi', 'Ustawienia', 'O aplikacji']
-
-TAB_COLORS = [
-	'#E74C3C', '#3498DB', '#2ECC71', '#9B59B6', '#F39C12', '#1ABC9C', '#E0E0E0'
-]
+TAB_COLORS = ['#E74C3C', '#3498DB', '#2ECC71', '#9B59B6', '#F39C12', '#1ABC9C', '#E0E0E0']
 
 
 class MainWindow(QMainWindow):
@@ -59,10 +42,7 @@ class MainWindow(QMainWindow):
 		return f'{__about__.__app_name__} :: {__about__.__version__} : {created}'
 
 	def _setup_ui(self) -> None:
-		self.setStyleSheet(f'''
-			QMainWindow {{ background-color: {self._theme.bg_dark}; }}
-			QWidget {{ color: {self._theme.text_primary}; }}
-		''')
+		self.setStyleSheet(f'QMainWindow {{ background-color: {self._theme.bg_dark}; }} QWidget {{ color: {self._theme.text_primary}; }}')
 
 		self._tabs = QTabWidget()
 		self._tabs.setTabPosition(QTabWidget.TabPosition.North)
@@ -70,7 +50,7 @@ class MainWindow(QMainWindow):
 
 		self._log_panel = self._create_log_panel()
 
-		for i, name in enumerate(TAB_NAMES):
+		for name in TAB_NAMES:
 			self._tabs.addTab(self._create_tab(name), name)
 
 		self._style_tabs()
@@ -80,7 +60,7 @@ class MainWindow(QMainWindow):
 		layout.setContentsMargins(0, 0, 0, 0)
 		layout.setSpacing(0)
 		layout.addWidget(self._tabs, 1)
-		layout.addWidget(self._log_panel, 0)
+		layout.addWidget(self._log_panel, 1)
 
 		central = QWidget()
 		central.setLayout(layout)
@@ -117,7 +97,6 @@ class MainWindow(QMainWindow):
 		link.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 		link.setOpenExternalLinks(True)
 		layout.addWidget(link)
-
 		layout.addStretch()
 
 	def _style_tabs(self) -> None:
@@ -128,11 +107,7 @@ class MainWindow(QMainWindow):
 		tab_bar = self._tabs.tabBar()
 		tab_bar.setFont(font)
 		tab_bar.setExpanding(True)
-		tab_bar.setStyleSheet(f'''
-			QTabBar::tab {{ background-color: {self._theme.tabs_bg}; color: {self._theme.tabs_text}; padding: 8px 24px; min-width: 120px; }}
-			QTabBar::tab:selected {{ background-color: {self._theme.tabs_active}; }}
-			QTabBar::tab:hover:!selected {{ background-color: {self._theme.tabs_hover}; }}
-		''')
+		tab_bar.setStyleSheet(f'QTabBar::tab {{ background-color: {self._theme.tabs_bg}; color: {self._theme.tabs_text}; padding: 8px 24px; min-width: 120px; }} QTabBar::tab:selected {{ background-color: {self._theme.tabs_active}; }}')
 
 		for i, color in enumerate(TAB_COLORS):
 			self._tabs.tabBar().setTabTextColor(i, color)
@@ -140,20 +115,18 @@ class MainWindow(QMainWindow):
 	def _create_log_panel(self) -> QTextEdit:
 		panel = QTextEdit()
 		panel.setReadOnly(True)
-		panel.setMaximumHeight(80)
-		panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
-		panel.setStyleSheet(f'''
-			QTextEdit {{ background-color: {self._settings.panel.bg_color}; color: {self._settings.panel.text_color}; border: none; padding: 10px; font-family: '{self._fonts.tab_family}'; font-size: 12px; }}
-		''')
+		panel.setMinimumHeight(80)
+		panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding)
+		panel.setStyleSheet(f'QTextEdit {{ background-color: {self._settings.panel.bg_color}; color: {self._settings.panel.text_color}; border: none; padding: 10px; font-family: {self._fonts.tab_family}; font-size: 12px; }}')
 		return panel
 
 	def _load_logs(self) -> None:
 		if not self._log_panel:
 			return
+		import json
 		from biblioteka.config.settings import get_project_root
 		project_root = get_project_root()
 		log_file = project_root / self._settings.logging.file.path
-
 		if log_file.exists():
 			content = log_file.read_text(encoding='utf-8')
 			lines = content.strip().split('\n')
@@ -172,16 +145,6 @@ class MainWindow(QMainWindow):
 	def _on_tab_changed(self, index: int) -> None:
 		tab_name = self._tabs.tabText(index)
 		log.debug('zmiana-zakladki', tab=tab_name)
-
-		if tab_name == 'Logi':
-			self._log_panel.setMinimumHeight(100)
-			self._log_panel.setMaximumHeight(16777215)
-			self._log_panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-		else:
-			self._log_panel.setMaximumHeight(100)
-			self._log_panel.setMinimumHeight(80)
-			self._log_panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
-
 		self._load_logs()
 		if self._log_panel:
 			self._log_panel.append(f'przełączono na {tab_name}')
