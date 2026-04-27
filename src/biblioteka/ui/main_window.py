@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
 	QLabel,
 	QMainWindow,
 	QSplitter,
+	QSizePolicy,
 	QTabWidget,
 	QTextEdit,
 	QVBoxLayout,
@@ -113,9 +114,11 @@ class MainWindow(QMainWindow):
 		splitter.addWidget(self._tabs)
 		splitter.addWidget(self._log_panel)
 		splitter.setSizes(
-			[self.height() * int((1 - self._settings.panel.max_height_ratio) * 100),
-			self.height() * int(self._settings.panel.max_height_ratio * 100),
-		])
+			[
+				self.height() - int(self.height() * self._settings.panel.max_height_ratio),
+				int(self.height() * self._settings.panel.max_height_ratio),
+			]
+		)
 		splitter.setHandleWidth(2)
 		self._load_logs()
 
@@ -195,8 +198,11 @@ class MainWindow(QMainWindow):
 		"""Tworzy panel logów."""
 		panel = QTextEdit()
 		panel.setReadOnly(True)
-		panel.setMaximumHeight(
-			int(self._settings.ui.window_height * self._settings.panel.max_height_ratio)
+
+		panel.setMaximumHeight(80)
+		panel.setSizePolicy(
+			QSizePolicy.Policy.Expanding,
+			QSizePolicy.Policy.Maximum,
 		)
 
 		panel.setStyleSheet(f'''

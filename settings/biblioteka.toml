@@ -56,7 +56,7 @@ tab_logi = "#F39C12"
 tab_ustawienia = "#1ABC9C"
 
 [ui.panel]
-max_height_ratio = 0.125
+max_height_ratio = 0.04
 bg_color = "#0D0D14"
 text_color = "#E4E4F0"
 
