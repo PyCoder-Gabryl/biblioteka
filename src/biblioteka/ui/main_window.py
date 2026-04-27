@@ -247,6 +247,20 @@ class MainWindow(QMainWindow):
 		"""Obsługuje przełączenie zakładki."""
 		tab_name = self._tabs.tabText(index)
 		log.debug('zmiana-zakladki', tab=tab_name)
+
+		if tab_name == 'Logi':
+			self._log_panel.setMaximumHeight(1000)
+			self._log_panel.setSizePolicy(
+				QSizePolicy.Policy.Expanding,
+				QSizePolicy.Policy.Expanding,
+			)
+		else:
+			self._log_panel.setMaximumHeight(80)
+			self._log_panel.setSizePolicy(
+				QSizePolicy.Policy.Expanding,
+				QSizePolicy.Policy.Maximum,
+			)
+
 		self._load_logs()
 		if self._log_panel:
 			self._log_panel.append(f'przełączono na {tab_name}')
