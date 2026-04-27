@@ -83,7 +83,7 @@ class MainWindow(QMainWindow):
 
 		if tab_name == 'Logi':
 			panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-			panel.setMaximumHeight(16777215)  # maksymalna wysokość = brak limitu
+			panel.setFixedHeight(750)
 		else:
 			panel.setFixedHeight(80)
 			panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
