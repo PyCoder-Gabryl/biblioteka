@@ -31,6 +31,7 @@ class MainWindow(QMainWindow):
 		self._settings = load_settings()
 		self._theme = self._settings.theme
 		self._fonts = self._settings.fonts
+		self._log_panel: QTextEdit = None  # type: ignore[assignment]
 		self.setWindowTitle(self._build_title())
 		self.setMinimumSize(self._settings.ui.window_width, self._settings.ui.window_height)
 		self._setup_ui()
@@ -60,7 +61,7 @@ class MainWindow(QMainWindow):
 		layout.setContentsMargins(0, 0, 0, 0)
 		layout.setSpacing(0)
 		layout.addWidget(self._tabs, 1)
-		layout.addWidget(self._log_panel, 1)
+		layout.addWidget(self._log_panel, 0)
 
 		central = QWidget()
 		central.setLayout(layout)
@@ -115,8 +116,7 @@ class MainWindow(QMainWindow):
 	def _create_log_panel(self) -> QTextEdit:
 		panel = QTextEdit()
 		panel.setReadOnly(True)
-		panel.setMinimumHeight(80)
-		panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding)
+		panel.setFixedHeight(80)
 		panel.setStyleSheet(f'QTextEdit {{ background-color: {self._settings.panel.bg_color}; color: {self._settings.panel.text_color}; border: none; padding: 10px; font-family: {self._fonts.tab_family}; font-size: 12px; }}')
 		return panel
 
@@ -145,6 +145,12 @@ class MainWindow(QMainWindow):
 	def _on_tab_changed(self, index: int) -> None:
 		tab_name = self._tabs.tabText(index)
 		log.debug('zmiana-zakladki', tab=tab_name)
+
+		if tab_name == 'Logi':
+			self._log_panel.setFixedHeight(750)
+		else:
+			self._log_panel.setFixedHeight(80)
+
 		self._load_logs()
 		if self._log_panel:
 			self._log_panel.append(f'przełączono na {tab_name}')
