@@ -75,11 +75,27 @@ class ApiConfig(BaseModel):
 
 
 class UiConfig(BaseModel):
-    """Konfiguracja UI."""
+	"""Konfiguracja UI."""
 
-    window_width: int = 1200
-    window_height: int = 800
-    dark_mode: bool = False
+	window_width: int = 1200
+	window_height: int = 800
+	dark_mode: bool = False
+
+
+class PanelConfig(BaseModel):
+	"""Konfiguracja panelu logów."""
+
+	max_height_ratio: float = 0.2
+	bg_color: str = '#000000'
+	text_color: str = '#FFFFFF'
+
+
+class AssetsConfig(BaseModel):
+	"""Konfiguracja assetów."""
+
+	fonts_dir: str = 'assets/fonts'
+	images_dir: str = 'assets/images'
+	audio_dir: str = 'assets/audio'
 
 
 class AppConfig(BaseModel):
@@ -90,19 +106,21 @@ class AppConfig(BaseModel):
 
 
 class Settings(BaseSettings):
-    """Główne ustawienia aplikacji."""
+	"""Główne ustawienia aplikacji."""
 
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
+	model_config = SettingsConfigDict(
+		env_file=".env",
+		env_file_encoding="utf-8",
+		extra="ignore",
+	)
 
-    app: AppConfig = Field(default_factory=AppConfig)
-    logging: LoggingConfig = Field(default_factory=LoggingConfig)
-    database: DatabaseConfig = Field(default_factory=DatabaseConfig)
-    api: ApiConfig = Field(default_factory=ApiConfig)
-    ui: UiConfig = Field(default_factory=UiConfig)
+	app: AppConfig = Field(default_factory=AppConfig)
+	logging: LoggingConfig = Field(default_factory=LoggingConfig)
+	database: DatabaseConfig = Field(default_factory=DatabaseConfig)
+	api: ApiConfig = Field(default_factory=ApiConfig)
+	ui: UiConfig = Field(default_factory=UiConfig)
+	panel: PanelConfig = Field(default_factory=PanelConfig)
+	assets: AssetsConfig = Field(default_factory=AssetsConfig)
 
 
 def get_project_root() -> Path:

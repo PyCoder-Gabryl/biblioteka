@@ -1,7 +1,7 @@
 # Konfiguracja aplikacji Biblioteka
 
 [app]
-name = "bibliotka"
+name = "Biblioteka"
 version = "0.0.1"
 
 [logging]
@@ -24,7 +24,7 @@ max_backup_days = 14
 path = "data/bibliotka.db"
 
 [api.bn]
-# BN Data - Biblioteka Narodowa
+# BN Data — Biblioteka Narodowa
 base_url = "https://data.bn.org.pl/api"
 
 [api.fbc]
@@ -36,3 +36,21 @@ base_url = "https://fbc.pionier.net.pl"
 window_width = 1200
 window_height = 800
 dark_mode = false
+
+[assets]
+# Ścieżki do assetów (względne od korzenia projektu)
+fonts_dir = "assets/fonts"
+images_dir = "assets/images"
+audio_dir = "assets/audio"
+
+[ui.theme]
+# Kolory zakładek (hex)
+tab_active = "#4A90D9"
+tab_inactive = "#2C2C2C"
+tab_hover = "#3A3A3A"
+
+[ui.panel]
+# Panel logów na dole
+max_height_ratio = 0.2  # 1/5 wysokości
+bg_color = "#000000"
+text_color = "#FFFFFF"
