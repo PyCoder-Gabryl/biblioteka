@@ -178,7 +178,13 @@ Szczegółowy opis:
 - co zostało dodane/zmienione
 - dlaczego
 - lista zmian jeśli więcej niż jedna
+- jakie pliki dotknięte
 ```
+
+**WAŻNE:** Commit musi zawierać:
+- Temat: co i gdzie (np. "dodaj funkcję X do modułu Y")
+- Body: dokładny opis zmian, dlaczego, jakie pliki
+- Nie używać ogólnych fraz jak "naprawiono błędy" czy "poprawki"
 
 **Emoji i typy:**
 
