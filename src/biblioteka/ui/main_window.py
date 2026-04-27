@@ -112,7 +112,10 @@ class MainWindow(QMainWindow):
 		splitter = QSplitter(Qt.Orientation.Vertical)
 		splitter.addWidget(self._tabs)
 		splitter.addWidget(self._log_panel)
-		splitter.setSizes([self.height() * 75, self.height() * 25])
+		splitter.setSizes(
+			[self.height() * int((1 - self._settings.panel.max_height_ratio) * 100),
+			self.height() * int(self._settings.panel.max_height_ratio * 100),
+		])
 		splitter.setHandleWidth(2)
 		self._load_logs()
 
@@ -192,7 +195,9 @@ class MainWindow(QMainWindow):
 		"""Tworzy panel logów."""
 		panel = QTextEdit()
 		panel.setReadOnly(True)
-		panel.setMaximumHeight(self._settings.ui.window_height // 4)
+		panel.setMaximumHeight(
+			int(self._settings.ui.window_height * self._settings.panel.max_height_ratio)
+		)
 
 		panel.setStyleSheet(f'''
 			QTextEdit {{
