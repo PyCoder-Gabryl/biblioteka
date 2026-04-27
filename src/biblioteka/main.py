@@ -19,6 +19,8 @@
 #       Główny moduł aplikacji biblioteki.
 # ==========================================================================================
 
+from datetime import datetime
+
 from biblioteka import __about__
 from biblioteka.logging.logger import get_logger
 
@@ -28,8 +30,10 @@ log = get_logger(__name__)
 def main() -> None:
 	"""Uruchamia aplikację biblioteki."""
 	log.info(
-		'start aplikacji',
+		"start aplikacji",
+		app=__about__.__app_name__,
 		version=__about__.__version__,
+		started_at=datetime.now().isoformat(),
 	)
 
 
