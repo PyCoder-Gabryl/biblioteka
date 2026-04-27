@@ -102,9 +102,10 @@ class MainWindow(QMainWindow):
 		panel = QTextEdit()
 		panel.setReadOnly(True)
 
-		height = self._settings.panel.logi_height if tab_name == 'Logi' else self._settings.panel.inne_height
+		is_logi = tab_name == 'Logi'
+		height = self._settings.panel.logi_height if is_logi else self._settings.panel.inne_height
 
-		if tab_name == 'Logi':
+		if is_logi:
 			panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 			panel.setFixedHeight(height)
 		else:

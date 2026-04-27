@@ -59,6 +59,8 @@ tab_ustawienia = "#1ABC9C"
 max_height_ratio = 0.04
 bg_color = "#0D0D14"
 text_color = "#E4E4F0"
+logi_height = 780
+inne_height = 80
 
 [ui.fonts]
 tab_family = "JetBrains Mono"
