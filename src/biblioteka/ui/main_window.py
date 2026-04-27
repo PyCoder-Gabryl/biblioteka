@@ -21,15 +21,14 @@
 
 import json
 from datetime import datetime
-from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont, QTextCursor
+from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
 	QLabel,
 	QMainWindow,
-	QSplitter,
 	QSizePolicy,
+	QSplitter,
 	QTabWidget,
 	QTextEdit,
 	QVBoxLayout,
@@ -84,14 +83,14 @@ class MainWindow(QMainWindow):
 
 	def _setup_ui(self) -> None:
 		"""Tworzy interfejs użytkownika."""
-		self.setStyleSheet(f'''
+		self.setStyleSheet(f"""
 			QMainWindow {{
 				background-color: {self._theme.bg_dark};
 			}}
 			QWidget {{
 				color: {self._theme.text_primary};
 			}}
-		''')
+		""")
 
 		central = QWidget()
 		layout = QVBoxLayout(central)
@@ -113,12 +112,6 @@ class MainWindow(QMainWindow):
 		splitter = QSplitter(Qt.Orientation.Vertical)
 		splitter.addWidget(self._tabs)
 		splitter.addWidget(self._log_panel)
-		splitter.setSizes(
-			[
-				self.height() - int(self.height() * self._settings.panel.max_height_ratio),
-				int(self.height() * self._settings.panel.max_height_ratio),
-			]
-		)
 		splitter.setHandleWidth(2)
 		self._load_logs()
 
@@ -149,9 +142,7 @@ class MainWindow(QMainWindow):
 		layout.addWidget(title)
 
 		info = QLabel(
-			f'Wersja: {__about__.__version__}<br>'
-			f'Utworzono: {__about__.__created__}<br>'
-			f'Autor: {__about__.__author__}'
+			f'Wersja: {__about__.__version__}<br>Utworzono: {__about__.__created__}<br>Autor: {__about__.__author__}'
 		)
 		info.setFont(QFont(self._fonts.tab_family, 16))
 		info.setAlignment(Qt.AlignmentFlag.AlignHCenter)
@@ -176,7 +167,7 @@ class MainWindow(QMainWindow):
 		tab_bar.setExpanding(True)
 		tab_bar.setDocumentMode(True)
 
-		tab_bar.setStyleSheet(f'''
+		tab_bar.setStyleSheet(f"""
 			QTabBar::tab {{
 				background-color: {self._theme.tabs_bg};
 				color: {self._theme.tabs_text};
@@ -189,7 +180,7 @@ class MainWindow(QMainWindow):
 			QTabBar::tab:hover:!selected {{
 				background-color: {self._theme.tabs_hover};
 			}}
-		''')
+		""")
 
 		for i, color in enumerate(TAB_COLORS):
 			self._tabs.tabBar().setTabTextColor(i, color)
@@ -205,7 +196,7 @@ class MainWindow(QMainWindow):
 			QSizePolicy.Policy.Maximum,
 		)
 
-		panel.setStyleSheet(f'''
+		panel.setStyleSheet(f"""
 			QTextEdit {{
 				background-color: {self._settings.panel.bg_color};
 				color: {self._settings.panel.text_color};
@@ -214,7 +205,7 @@ class MainWindow(QMainWindow):
 				font-family: '{self._fonts.tab_family}';
 				font-size: 12px;
 			}}
-		''')
+		""")
 
 		self._load_logs()
 		return panel
@@ -249,7 +240,7 @@ class MainWindow(QMainWindow):
 		log.debug('zmiana-zakladki', tab=tab_name)
 
 		if tab_name == 'Logi':
-			self._log_panel.setMaximumHeight(600)
+			self._log_panel.setMaximumHeight(1000)
 			self._log_panel.setSizePolicy(
 				QSizePolicy.Policy.Expanding,
 				QSizePolicy.Policy.Expanding,
