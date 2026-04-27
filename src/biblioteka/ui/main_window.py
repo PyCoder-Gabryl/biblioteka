@@ -44,9 +44,7 @@ class MainWindow(QMainWindow):
 		return f'{__about__.__app_name__} :: {__about__.__version__} : {created}'
 
 	def _setup_ui(self) -> None:
-		self.setStyleSheet(
-			f'QMainWindow {{ background-color: {self._theme.bg_dark}; }} QWidget {{ color: {self._theme.text_primary}; }}'
-		)
+		self.setStyleSheet(f'QMainWindow {{ background-color: {self._theme.bg_dark}; }} QWidget {{ color: {self._theme.text_primary}; }}')
 
 		self._tabs = QTabWidget()
 		self._tabs.setTabPosition(QTabWidget.TabPosition.North)
@@ -79,23 +77,6 @@ class MainWindow(QMainWindow):
 		central.setLayout(layout)
 		self.setCentralWidget(central)
 
-	def _create_log_panel_for_tab(self, tab_name: str) -> QTextEdit:
-		panel = QTextEdit()
-		panel.setReadOnly(True)
-
-		if tab_name == 'Logi':
-			panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-			panel.setFixedHeight(600)
-		else:
-			panel.setFixedHeight(70)
-			panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-			panel.setMaximumHeight(70)
-
-		panel.setStyleSheet(
-			f'QTextEdit {{ background-color: {self._settings.panel.bg_color}; color: {self._settings.panel.text_color}; border: none; padding: 10px; font-family: {self._fonts.tab_family}; font-size: 12px; }}'
-		)
-		return panel
-
 	def _create_about_in_layout(self, layout: QVBoxLayout) -> None:
 		layout.setContentsMargins(50, 50, 50, 50)
 		layout.setSpacing(30)
@@ -105,9 +86,7 @@ class MainWindow(QMainWindow):
 		title.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 		layout.addWidget(title)
 
-		info = QLabel(
-			f'Wersja: {__about__.__version__}<br>Utworzono: {__about__.__created__}<br>Autor: {__about__.__author__}'
-		)
+		info = QLabel(f'Wersja: {__about__.__version__}<br>Utworzono: {__about__.__created__}<br>Autor: {__about__.__author__}')
 		info.setFont(QFont(self._fonts.tab_family, 16))
 		info.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 		layout.addWidget(info)
@@ -119,6 +98,23 @@ class MainWindow(QMainWindow):
 		layout.addWidget(link)
 		layout.addStretch()
 
+	def _create_log_panel_for_tab(self, tab_name: str) -> QTextEdit:
+		panel = QTextEdit()
+		panel.setReadOnly(True)
+
+		height = self._settings.panel.logi_height if tab_name == 'Logi' else self._settings.panel.inne_height
+
+		if tab_name == 'Logi':
+			panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+			panel.setFixedHeight(height)
+		else:
+			panel.setFixedHeight(height)
+			panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+			panel.setMaximumHeight(height)
+
+		panel.setStyleSheet(f'QTextEdit {{ background-color: {self._settings.panel.bg_color}; color: {self._settings.panel.text_color}; border: none; padding: 10px; font-family: {self._fonts.tab_family}; font-size: 12px; }}')
+		return panel
+
 	def _style_tabs(self) -> None:
 		font = QFont(self._fonts.tab_family)
 		font.setPointSize(self._fonts.tab_size)
@@ -127,9 +123,7 @@ class MainWindow(QMainWindow):
 		tab_bar = self._tabs.tabBar()
 		tab_bar.setFont(font)
 		tab_bar.setExpanding(True)
-		tab_bar.setStyleSheet(
-			f'QTabBar::tab {{ background-color: {self._theme.tabs_bg}; color: {self._theme.tabs_text}; padding: 8px 24px; min-width: 120px; }} QTabBar::tab:selected {{ background-color: {self._theme.tabs_active}; }}'
-		)
+		tab_bar.setStyleSheet(f'QTabBar::tab {{ background-color: {self._theme.tabs_bg}; color: {self._theme.tabs_text}; padding: 8px 24px; min-width: 120px; }} QTabBar::tab:selected {{ background-color: {self._theme.tabs_active}; }}')
 
 		for i, color in enumerate(TAB_COLORS):
 			self._tabs.tabBar().setTabTextColor(i, color)
@@ -148,8 +142,10 @@ class MainWindow(QMainWindow):
 		current_panel = self._log_panels.get(tab_name)
 		if current_panel:
 			current_panel.setVisible(True)
-			current_panel.update()
-			layout.addWidget(current_panel, 1 if tab_name == 'Logi' else 0, Qt.AlignmentFlag.AlignBottom)
+			if tab_name == 'Logi':
+				layout.addWidget(current_panel, 1)
+			else:
+				layout.addWidget(current_panel, 0, Qt.AlignmentFlag.AlignBottom)
 
 		old_panel = self._log_panels.get(old_tab)
 		if old_panel and old_tab != tab_name:
@@ -164,9 +160,7 @@ class MainWindow(QMainWindow):
 		if not panel:
 			return
 		import json
-
 		from biblioteka.config.settings import get_project_root
-
 		project_root = get_project_root()
 		log_file = project_root / self._settings.logging.file.path
 		if log_file.exists():

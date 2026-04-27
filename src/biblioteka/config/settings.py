@@ -109,6 +109,8 @@ class PanelConfig(BaseModel):
 	max_height_ratio: float = 0.25
 	bg_color: str = "#0D0D14"
 	text_color: str = "#E4E4F0"
+	logi_height: int = 780
+	inne_height: int = 80
 
 
 class FontsConfig(BaseModel):
