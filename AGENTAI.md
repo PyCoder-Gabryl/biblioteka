@@ -70,6 +70,13 @@
 - Unikaj type comments (`# type: int`)
 - Dla złożonych typów używaj `typing` lub `types`
 
+### Docstringi
+
+- **KAŻDA publiczna funkcja/musí mieć docstring**
+- Używaj formatu Google lub simple docstrings
+- Docstring opisuje: co funkcja robi, argumenty, zwracaną wartość
+- Prywatne funkcje `_func()` - docstring opcjonalny
+
 ### Liczby magiczne
 
 - NIE używaj liczb magicznych w kodzie
