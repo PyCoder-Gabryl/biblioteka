@@ -35,7 +35,7 @@ from structlog.dev import ConsoleRenderer
 from structlog.processors import StackInfoRenderer, TimeStamper, format_exc_info
 from structlog.types import Processor
 
-from biblioteka.config.settings import get_project_root, load_settings
+from biblioteka.config.settings import get_project_root, load_settings  # isort: skip
 
 
 @dataclass(slots=True)
@@ -116,6 +116,7 @@ def configure_logging() -> None:
 		settings.logging.rotation.max_backup_days,
 	)
 	handler.rotate()
+	handler.clean_old()
 
 	_LogFileManager.set_log_file(log_path)
 
@@ -161,3 +162,4 @@ def get_logger(name: str | None = None) -> structlog.BoundLogger:
 
 
 __all__ = ['RotatingLogHandler', 'configure_logging', 'get_logger']
+
