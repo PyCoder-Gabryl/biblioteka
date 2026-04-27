@@ -31,7 +31,8 @@ class MainWindow(QMainWindow):
 		self._settings = load_settings()
 		self._theme = self._settings.theme
 		self._fonts = self._settings.fonts
-		self._log_panel: QTextEdit = None  # type: ignore[assignment]
+		self._log_panels: dict[str, QTextEdit] = {}
+		self._current_tab = 'Dodaj'
 		self.setWindowTitle(self._build_title())
 		self.setMinimumSize(self._settings.ui.window_width, self._settings.ui.window_height)
 		self._setup_ui()
@@ -49,37 +50,47 @@ class MainWindow(QMainWindow):
 		self._tabs.setTabPosition(QTabWidget.TabPosition.North)
 		self._tabs.currentChanged.connect(self._on_tab_changed)
 
-		self._log_panel = self._create_log_panel()
-
 		for name in TAB_NAMES:
-			self._tabs.addTab(self._create_tab(name), name)
+			tab = QWidget()
+			layout = QVBoxLayout(tab)
+			layout.setContentsMargins(0, 0, 0, 0)
+
+			if name == 'O aplikacji':
+				self._create_about_in_layout(layout)
+			else:
+				label = QLabel(f'Zakładka: {name}')
+				label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+				layout.addWidget(label)
+
+			log_panel = self._create_log_panel_for_tab(name)
+			self._log_panels[name] = log_panel
+			self._tabs.addTab(tab, name)
 
 		self._style_tabs()
-		self._load_logs()
 
 		layout = QVBoxLayout()
 		layout.setContentsMargins(0, 0, 0, 0)
 		layout.setSpacing(0)
 		layout.addWidget(self._tabs, 1)
-		layout.addWidget(self._log_panel, 0)
 
 		central = QWidget()
 		central.setLayout(layout)
 		self.setCentralWidget(central)
 
-	def _create_tab(self, name: str) -> QWidget:
-		tab = QWidget()
-		if name == 'O aplikacji':
-			self._create_about_tab(tab)
-		else:
-			label = QLabel(f'Zakładka: {name}')
-			label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-			layout = QVBoxLayout(tab)
-			layout.addWidget(label)
-		return tab
+	def _create_log_panel_for_tab(self, tab_name: str) -> QTextEdit:
+		panel = QTextEdit()
+		panel.setReadOnly(True)
 
-	def _create_about_tab(self, tab: QWidget) -> None:
-		layout = QVBoxLayout(tab)
+		if tab_name == 'Logi':
+			panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+		else:
+			panel.setFixedHeight(80)
+			panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
+		panel.setStyleSheet(f'QTextEdit {{ background-color: {self._settings.panel.bg_color}; color: {self._settings.panel.text_color}; border: none; padding: 10px; font-family: {self._fonts.tab_family}; font-size: 12px; }}')
+		return panel
+
+	def _create_about_in_layout(self, layout: QVBoxLayout) -> None:
 		layout.setContentsMargins(50, 50, 50, 50)
 		layout.setSpacing(30)
 
@@ -113,15 +124,31 @@ class MainWindow(QMainWindow):
 		for i, color in enumerate(TAB_COLORS):
 			self._tabs.tabBar().setTabTextColor(i, color)
 
-	def _create_log_panel(self) -> QTextEdit:
-		panel = QTextEdit()
-		panel.setReadOnly(True)
-		panel.setFixedHeight(80)
-		panel.setStyleSheet(f'QTextEdit {{ background-color: {self._settings.panel.bg_color}; color: {self._settings.panel.text_color}; border: none; padding: 10px; font-family: {self._fonts.tab_family}; font-size: 12px; }}')
-		return panel
+	def _on_tab_changed(self, index: int) -> None:
+		old_tab = self._current_tab
+		tab_name = self._tabs.tabText(index)
+		self._current_tab = tab_name
+		log.debug('zmiana-zakladki', tab=tab_name)
 
-	def _load_logs(self) -> None:
-		if not self._log_panel:
+		tab_widget = self._tabs.widget(index)
+		layout = tab_widget.layout()
+
+		current_panel = self._log_panels.get(tab_name)
+		if current_panel:
+			current_panel.setVisible(True)
+			layout.addWidget(current_panel, 1 if tab_name == 'Logi' else 0, Qt.AlignmentFlag.AlignBottom)
+
+		old_panel = self._log_panels.get(old_tab)
+		if old_panel and old_tab != tab_name:
+			old_panel.setVisible(False)
+
+		self._load_logs(tab_name)
+		if current_panel:
+			current_panel.append(f'przełączono na {tab_name}')
+
+	def _load_logs(self, tab_name: str) -> None:
+		panel = self._log_panels.get(tab_name)
+		if not panel:
 			return
 		import json
 		from biblioteka.config.settings import get_project_root
@@ -131,32 +158,16 @@ class MainWindow(QMainWindow):
 			content = log_file.read_text(encoding='utf-8')
 			lines = content.strip().split('\n')
 			recent = lines[-50:] if len(lines) > 50 else lines
-			self._log_panel.clear()
+			panel.clear()
 			for line in reversed(recent):
 				if line:
 					try:
 						entry = json.loads(line)
 						msg = entry.get('event', '')
 						if msg:
-							self._log_panel.append(msg)
+							panel.append(msg)
 					except Exception:
 						pass
-
-	def _on_tab_changed(self, index: int) -> None:
-		tab_name = self._tabs.tabText(index)
-		log.debug('zmiana-zakladki', tab=tab_name)
-
-		if tab_name == 'Logi':
-			self._log_panel.setMinimumHeight(700)
-			self._log_panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-		else:
-			self._log_panel.setFixedHeight(80)
-			self._log_panel.setMinimumHeight(80)
-			self._log_panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-
-		self._load_logs()
-		if self._log_panel:
-			self._log_panel.append(f'przełączono na {tab_name}')
 
 	def _center_on_screen(self) -> None:
 		screen = self.screen()
