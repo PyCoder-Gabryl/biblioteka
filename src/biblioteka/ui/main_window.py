@@ -249,7 +249,7 @@ class MainWindow(QMainWindow):
 		log.debug('zmiana-zakladki', tab=tab_name)
 
 		if tab_name == 'Logi':
-			self._log_panel.setMaximumHeight(1000)
+			self._log_panel.setMaximumHeight(600)
 			self._log_panel.setSizePolicy(
 				QSizePolicy.Policy.Expanding,
 				QSizePolicy.Policy.Expanding,
